@@ -2,7 +2,7 @@ name: Update IP List
 
 on:
   schedule:
-    - cron: '*/15 6-22 * * *' # 从6:00-22:59，每15分运行一次
+    - cron: '5 6-22/1 * * *' # 从6:00-22:59，每15分运行一次
   workflow_dispatch: # 允许手动触发
   push: # 允许提交触发
 
