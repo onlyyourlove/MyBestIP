@@ -1,0 +1,58 @@
+name: Monitor Webpage Changes
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'  # Runs every 30 minutes    
+
+jobs:
+  check_webpage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl jq
+
+      - name: Check webpage for changes
+        id: check_changes
+        run: |
+          # Define the URLs to monitor
+          URL1="https://monitor.gacjie.cn/page/cloudflare/ipv4.html"
+          URL2="https://ip.164746.xyz/"
+          
+          # Fetch the current content of the pages
+          CONTENT1=$(curl -s $URL1)
+          CONTENT2=$(curl -s $URL2)
+
+          # Check if the content has changed
+          if [ -f "last_content1.txt" ]; then
+            LAST_CONTENT1=$(cat last_content1.txt)
+          else
+            LAST_CONTENT1=""
+          fi
+
+          if [ -f "last_content2.txt" ]; then
+            LAST_CONTENT2=$(cat last_content2.txt)
+          else
+            LAST_CONTENT2=""
+          fi
+
+          # Compare and update the last content
+          if [ "$CONTENT1" != "$LAST_CONTENT1" ] || [ "$CONTENT2" != "$LAST_CONTENT2" ]; then
+            echo "Changes detected!"
+            echo "$CONTENT1" > last_content1.txt
+            echo "$CONTENT2" > last_content2.txt
+            echo "true" >> $GITHUB_ENV
+          else
+            echo "No changes detected."
+            echo "false" >> $GITHUB_ENV
+          fi
+
+      - name: Run collect_ips.py
+        if: env.CHANGES == 'true'
+        run: |
+          python3 collect_ips.py
