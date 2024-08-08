@@ -1,4 +1,4 @@
-每3小时自动抓取：
+每2小时自动抓取：
 
 https://monitor.gacjie.cn/page/cloudflare/ipv4.html  
 https://ip.164746.xyz  
